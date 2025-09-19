@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactDOM from "react-dom/client";
 
 /**
  * 🎂 Amy's Birthday Game — compact, single-file React app
@@ -318,3 +319,13 @@ function runSelfTests(){
   console.log('✅ Self-tests passed');
 }
 try { if (typeof window!=='undefined' && new URLSearchParams(window.location.search).has('selftest')) setTimeout(runSelfTests,0); } catch {}
+
+// ---- Mount app (this renders to #root) ----
+const rootEl = document.getElementById('root');
+if (rootEl) {
+  ReactDOM.createRoot(rootEl).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}
