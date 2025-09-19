@@ -204,7 +204,7 @@ function Candle({ onBlown }: { onBlown: () => void }){
               <div className="absolute top-[4.5rem] right-2 w-4 h-4 bg-cyan-300/80 rounded-b-xl"/>
             </div>
             <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[2px] h-6 bg-zinc-900 rounded-full"/>
-            <motion.div className="absolute -top-28 left-1/2 -translate-x-1/2 w-24 h-32" animate={{ y:[0,-2,0,2,0], scaleX:[1,1.06,.96,1.04,1], rotate:[-2,2,-1,1,0] }} transition={{ duration:1.6, repeat:Infinity }}>
+            <motion.div className="absolute -top-28 left-1/2 -translate-x-1/2 -ml-1 w-24 h-32" animate={{ y:[0,-2,0,2,0], scaleX:[1,1.06,.96,1.04,1], rotate:[-2,2,-1,1,0] }} transition={{ duration:1.6, repeat:Infinity }}>
               <svg viewBox="0 0 100 140" className="w-full h-full drop-shadow-[0_0_46px_rgba(255,200,120,.95)]">
                 <defs>
                   <radialGradient id="flameCore" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#fffdf0"/><stop offset="45%" stopColor="#ffe680"/><stop offset="80%" stopColor="#ff9d3c"/><stop offset="100%" stopColor="transparent"/></radialGradient>
