@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Amy’s Birthday 🎂</title>
+
+    <!-- OG preview when you text the link -->
+    <meta property="og:title" content="Amy’s Birthday 🎂" />
+    <meta property="og:description" content="Tap the gift to start 🎁 — Wordle → Balloons → Postcard → Candle → Finale." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- Tailwind via CDN (no build step) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html,body,#root { height: 100%; }
+      body { background:#000; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-black text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
