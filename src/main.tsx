@@ -14,6 +14,7 @@ const TARGET = "BIRTHDAY"; // 8 letters
 const ROWS = 6, COLS = TARGET.length;
 const PAL = { ORANGE: "#FE5000", ORANGE_HI: "#FF6A21", BROWN: "#4F2C1D", BROWN_DK: "#3A2014", TAN: "#CDA077", CREAM: "#FFF5EC", CREAM2: "#FFE7D2" };
 const keys1 = [..."QWERTYUIOP"], keys2 = [..."ASDFGHJKL"], keys3 = ["ENTER", ..."ZXCVBNM", "⌫"];
+const IZZY_URL = "/izzy.m4a"; // place izzy.m4a in /public at repo root
 
 // ---------- Helpers --------------------------------------------------------
 function evaluateGuess(guess: string, target: string) {
@@ -78,22 +79,7 @@ function Keyboard({ onKey }: { onKey:(k:string)=>void }){
   );
 }
 
-// ---------- Tiny built-in music (no files; starts on first tap) ----------
-function useBirthdaySynth(){
-  const ctxRef = useRef<any>(null), gainRef = useRef<any>(null), loopRef = useRef<number|undefined>(undefined);
-  const ensure = ()=>{ const AC=(window as any).AudioContext||(window as any).webkitAudioContext; if(!AC) return null; if(!ctxRef.current){ const ctx=new AC(); const g=ctx.createGain(); g.gain.value=0.12; g.connect(ctx.destination); ctxRef.current=ctx; gainRef.current=g; } return ctxRef.current; };
-  const toHz=(n:string)=>{ const m=n.match(/^([A-G])([#b]?)([0-9])$/); if(!m) return 440; const base:any={C:-9,D:-7,E:-5,F:-4,G:-2,A:0,B:2}; const semi=base[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0)+(parseInt(m[3],10)-4)*12; return 440*Math.pow(2,semi/12); };
-  const blip=(t:number,hz:number,d:number)=>{ const ctx=ctxRef.current, g=gainRef.current; const o=ctx.createOscillator(), eg=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(hz,t); eg.gain.setValueAtTime(0,t); eg.gain.linearRampToValueAtTime(0.12,t+0.03); eg.gain.setTargetAtTime(0,t+d*0.7,0.06); o.connect(eg); eg.connect(g); o.start(t); o.stop(t+d+0.08); };
-  const play=()=>{ const ctx=ensure(); if(!ctx) return false; if(ctx.state==='suspended') ctx.resume(); const beat=0.55; let t=ctx.currentTime+0.05; const seq:[string,number][]= [ ['G4',1],['G4',1],['A4',2/3],['G4',2/3],['C5',2/3],['B4',4/3], ['G4',1],['G4',1],['A4',2/3],['G4',2/3],['D5',2/3],['C5',4/3], ['G4',1],['G4',1],['G5',2/3],['E5',2/3],['C5',2/3],['B4',2/3],['A4',4/3], ['F5',1],['F5',1],['E5',2/3],['C5',2/3],['D5',2/3],['C5',4/3] ];
-    for(const [nn,beats] of seq){ const d=Math.max(0.22, beat*beats); blip(t,toHz(nn),d); t+=d; }
-    const ms=Math.max(60,(t-ctx.currentTime)*1000-20); if(loopRef.current) clearTimeout(loopRef.current); loopRef.current=window.setTimeout(play, ms); return true; };
-  const start=()=>{ try{ if(loopRef.current) clearTimeout(loopRef.current); return play(); }catch{ return false; } };
-  const stop = ()=>{ if(loopRef.current) clearTimeout(loopRef.current); const ctx=ctxRef.current; if(ctx && ctx.state==='running'){ try{ ctx.suspend(); }catch{} } };
-  useEffect(()=>()=>stop(),[]);
-  return { start, stop } as const;
-}
-
-// ---------- Scenes ---------------------------------------------------------
+// ---------- Scenes --------------------------------------------------------- ---------------------------------------------------------
 function WordleScene({ onSolved }: { onSolved: () => void }){
   const [board,setBoard] = useState(Array.from({length:ROWS},()=>Array(COLS).fill('')));
   const [state,setState] = useState(Array.from({length:ROWS},()=>Array(COLS).fill('empty')));
@@ -204,7 +190,7 @@ function Candle({ onBlown }: { onBlown: () => void }){
               <div className="absolute top-[4.5rem] right-2 w-4 h-4 bg-cyan-300/80 rounded-b-xl"/>
             </div>
             <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[2px] h-6 bg-zinc-900 rounded-full"/>
-            <div className="absolute -top-28 left-1/2 -translate-x-1/2 w-24 h-32">{/* Wrapper keeps translateX(-50%) separate from Motion transforms */}
+            <div className="absolute -top-28 left-1/2 -translate-x-1/2 w-24 h-32" style={{ marginLeft: '-12px' }}>{/* Wrapper keeps translateX(-50%) separate from Motion transforms */}
   <motion.div className="w-full h-full" animate={{ y:[0,-2,0,2,0], scaleX:[1,1.06,.96,1.04,1], rotate:[-2,2,-1,1,0] }} transition={{ duration:1.6, repeat:Infinity }} style={{ transformOrigin:'50% 85%' }}>
     <svg viewBox="0 0 100 140" className="w-full h-full drop-shadow-[0_0_46px_rgba(255,200,120,.95)]">
       <defs>
@@ -265,19 +251,22 @@ function Finale({ onReplay }: { onReplay: () => void }){
 // ---------- Main App -------------------------------------------------------
 export default function App(){
   const [scene,setScene] = useState<"intro"|"wordle"|"balloons"|"postcard"|"candle"|"final">('intro');
-  const synth = useBirthdaySynth();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const goto = (s: typeof scene)=> setScene(s);
   return (
     <div className="min-h-screen text-white bg-black relative overflow-hidden">
       {/* Global full-screen glitter under everything */}
       <Glitter density={120}/>
 
+      {/* Hidden persistent audio element for Izzy's song */}
+      <audio id="izzy-audio" ref={audioRef} src={IZZY_URL} preload="auto" loop playsInline style={{ display:'none' }} />
+
       <Header/>
       <main className="px-4 pb-16 max-w-3xl mx-auto relative z-10">
         <AnimatePresence mode="wait">
           {scene==='intro' && (
             <motion.section key="intro" initial={{opacity:0,scale:.98}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:.98}} className="relative min-h-[70vh] grid place-items-center rounded-3xl">
-              <button aria-label="Start" onClick={()=>{ try{ synth.start(); }catch{} goto('wordle'); }} className="relative z-10 text-7xl sm:text-8xl rounded-full p-8 sm:p-10 shadow-2xl hover:scale-105 active:scale-95 transition" style={{ background:'radial-gradient(circle at 30% 30%, #ffffff 0%, #ffe5c4 45%, #ffb347 70%, #fe5000 100%)' }}>🎁</button>
+              <button aria-label="Start" onClick={() => { const a = audioRef.current; if (a) { try { a.currentTime = 0; a.loop = true; a.volume = 1; a.play().catch(() => {}); } catch {} } goto('wordle'); }} className="relative z-10 text-7xl sm:text-8xl rounded-full p-8 sm:p-10 shadow-2xl hover:scale-105 active:scale-95 transition" style={{ background:'radial-gradient(circle at 30% 30%, #ffffff 0%, #ffe5c4 45%, #ffb347 70%, #fe5000 100%)' }}>🎁</button>
             </motion.section>
           )}
           {scene==='wordle' && (
@@ -317,6 +306,8 @@ function runSelfTests(){
   const singleB = evaluateGuess("BBBBBBBB", TARGET); ok(singleB.filter(s=>s==='correct').length===1 && singleB.filter(s=>s==='present').length===0, 'Only first B correct');
   const reversed = evaluateGuess("YADTRIHB", TARGET); ok(reversed.every(s=>s==='present'), 'Reversed should be all present');
   ok(COLS===8, 'COLS must be 8'); ok(keys3[0]==='ENTER' && keys3.at(-1)==='⌫', 'Keyboard control keys present');
+  // basic presence check for audio element
+  try { const audioEl = document.getElementById('izzy-audio') as HTMLAudioElement | null; ok(!!audioEl, 'Audio element present'); } catch {}
   // eslint-disable-next-line no-console
   console.log('✅ Self-tests passed');
 }
