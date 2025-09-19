@@ -41,7 +41,7 @@ function Glitter({ density = 160 }: { density?: number }) {
     return () => { cancelAnimationFrame(raf); removeEventListener('resize', resize); };
   }, [density]);
   // Explicit black to ensure perfect match, sits behind everything
-  return <canvas ref={ref} className="pointer-events-none w-full h-full" style={{ position:'fixed', inset:0, background:'#000', zIndex:0 }} />;
+  return <canvas ref={ref} className="pointer-events-none w-full h-full" style={{ position:'fixed', inset:0, background:'#000', backgroundImage:'radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.12), transparent 60%), radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,.08), transparent 60%)', zIndex:0 }} />;
 }
 
 // Simple confetti burst (DOM divs)
@@ -204,7 +204,7 @@ function Candle({ onBlown }: { onBlown: () => void }){
               <div className="absolute top-[4.5rem] right-2 w-4 h-4 bg-cyan-300/80 rounded-b-xl"/>
             </div>
             <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[2px] h-6 bg-zinc-900 rounded-full"/>
-            <div className="absolute -top-28 left-1/2 -translate-x-1/2 w-24 h-32" style={{ marginLeft: '-12px' }}>{/* Wrapper keeps translateX(-50%) separate from Motion transforms */}
+            <div className="absolute -top-28 left-1/2 -translate-x-1/2 w-24 h-32" style={{ marginLeft: '8px' }}>{/* Wrapper keeps translateX(-50%) separate from Motion transforms */}
   <motion.div className="w-full h-full" animate={{ y:[0,-2,0,2,0], scaleX:[1,1.06,.96,1.04,1], rotate:[-2,2,-1,1,0] }} transition={{ duration:1.6, repeat:Infinity }} style={{ transformOrigin:'50% 85%' }}>
     <svg viewBox="0 0 100 140" className="w-full h-full drop-shadow-[0_0_46px_rgba(255,200,120,.95)]">
       <defs>
